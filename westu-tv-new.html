@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wesu TV - Live Streaming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #141414;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: #e50914;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            margin-top: 80px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 100px;
+        }
+
+        .channel-card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .channel-card:hover {
+            background: #3a3a3a;
+            border-color: #e50914;
+            transform: translateY(-5px);
+        }
+
+        .channel-number {
+            background: #e50914;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 18px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .channel-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .channel-type {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #181818;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 1000;
+            border-top: 1px solid #333;
+        }
+
+        .nav-item {
+            color: #999;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: white;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #141414;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 2000;
+        }
+
+        .loading.hidden {
+            display: none;
+        }
+
+        .video-player {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .video-player.active {
+            display: flex;
+        }
+
+        .video-container {
+            width: 90%;
+            max-width: 900px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .video-header {
+            background: #e50914;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        video {
+            width: 100%;
+            height: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .channel-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .bottom-nav {
+                gap: 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading" class="loading">
+        <div>📺 Loading Wesu TV...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        📺 Wesu TV - Live Streaming
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div id="channelGrid" class="channel-grid">
+            <!-- Channels will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a class="nav-item active" data-page="channels">📺 Channels</a>
+        <a class="nav-item" data-page="guide">📋 Guide</a>
+        <a class="nav-item" data-page="search">🔍 Search</a>
+        <a class="nav-item" data-page="radio">📻 Radio</a>
+        <a class="nav-item" data-page="profile">👤 Profile</a>
+    </nav>
+
+    <!-- Video Player Modal -->
+    <div id="videoPlayer" class="video-player">
+        <div class="video-container">
+            <div class="video-header">
+                <span id="videoTitle">Loading...</span>
+                <button class="close-btn" onclick="closePlayer()">✕</button>
+            </div>
+            <video id="videoElement" controls></video>
+        </div>
+    </div>
+
+    <script>
+        // Wesu TV Channels Data
+        const channels = [
+            {
+                id: 1,
+                name: "Wesu Entertainment",
+                type: "tv",
+                logo: "📺",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            },
+            {
+                id: 2,
+                name: "Wesu Sports",
+                type: "tv",
+                logo: "📺",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+            },
+            {
+                id: 3,
+                name: "Wesu News",
+                type: "tv",
+                logo: "📺",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+            },
+            {
+                id: 4,
+                name: "Wesu Movies",
+                type: "tv",
+                logo: "📺",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+            },
+            {
+                id: 5,
+                name: "Wesu Radio",
+                type: "radio",
+                logo: "📻",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+            },
+            {
+                id: 6,
+                name: "Wesu Music",
+                type: "radio",
+                logo: "📻",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTI.mp4"
+            }
+        ];
+
+        // Initialize App
+        function initApp() {
+            console.log('🚀 Wesu TV Starting...');
+            
+            // Load channels
+            loadChannels();
+            
+            // Setup navigation
+            setupNavigation();
+            
+            // Hide loading screen
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                console.log('✅ Loading screen hidden');
+            }, 1000);
+        }
+
+        // Load Channels
+        function loadChannels() {
+            console.log('📺 Loading channels...');
+            const channelGrid = document.getElementById('channelGrid');
+            
+            channels.forEach(channel => {
+                const channelCard = createChannelCard(channel);
+                channelGrid.appendChild(channelCard);
+            });
+            
+            console.log(`✅ Loaded ${channels.length} channels`);
+        }
+
+        // Create Channel Card
+        function createChannelCard(channel) {
+            const card = document.createElement('div');
+            card.className = 'channel-card';
+            card.onclick = () => playChannel(channel);
+            
+            card.innerHTML = `
+                <div class="channel-number">${channel.id}</div>
+                <div class="channel-name">${channel.name}</div>
+                <div class="channel-type">${channel.logo} ${channel.type === 'radio' ? 'Radio Station' : 'TV Channel'}</div>
+            `;
+            
+            return card;
+        }
+
+        // Play Channel
+        function playChannel(channel) {
+            console.log(`🎬 Playing: ${channel.name}`);
+            
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoElement = document.getElementById('videoElement');
+            const videoTitle = document.getElementById('videoTitle');
+            
+            // Set video source
+            videoElement.src = channel.url;
+            videoTitle.textContent = channel.name;
+            
+            // Show player
+            videoPlayer.classList.add('active');
+            
+            // Play video
+            videoElement.play().catch(error => {
+                console.error('❌ Error playing video:', error);
+                alert(`Error playing ${channel.name}: ${error.message}`);
+            });
+        }
+
+        // Close Player
+        function closePlayer() {
+            console.log('🔴 Closing player...');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoElement = document.getElementById('videoElement');
+            
+            videoPlayer.classList.remove('active');
+            videoElement.pause();
+            videoElement.src = '';
+        }
+
+        // Setup Navigation
+        function setupNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active class from all items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                    
+                    const page = item.dataset.page;
+                    console.log(`🧭 Navigating to: ${page}`);
+                    
+                    // Handle navigation
+                    handleNavigation(page);
+                });
+            });
+        }
+
+        // Handle Navigation
+        function handleNavigation(page) {
+            switch(page) {
+                case 'channels':
+                    // Already on channels page
+                    break;
+                case 'guide':
+                    alert('📋 Program Guide coming soon!');
+                    break;
+                case 'search':
+                    alert('🔍 Search coming soon!');
+                    break;
+                case 'radio':
+                    alert('📻 Radio mode coming soon!');
+                    break;
+                case 'profile':
+                    alert('👤 Profile coming soon!');
+                    break;
+            }
+        }
+
+        // Start app when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>

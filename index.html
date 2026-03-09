@@ -1,355 +1,1832 @@
 <!DOCTYPE html>
-<html lang="it">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Zappr is the new way to watch TV. Watch most of your country's national and local channels, online, for free and without any complicated setup.">
-        <meta property="og:title" content="Zappr - Watch TV online">
-        <meta property="og:url" content="https://zappr.stream">
-        <meta property="og:description" content="Zappr is the new way to watch TV. Watch most of your country's national and local channels, online, for free and without any complicated setup.">
-        <meta property="og:image" content="/assets/images/og.png">
-        <meta property="og:image:alt" content="Zappr is the new way to watch TV. Watch most of your country's national and local channels, online, for free and without any complicated setup.">
-        <meta property="og:locale" content="en_GB">
-        <meta property="og:locale:alternate" content="it_IT">
-        <meta property="og:type" content="website">
-        <meta name="twitter:card" content="/assets/images/og.webp">
-        <link rel="canonical" href="https://zappr.stream">
-        <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
-        <link rel="icon" href="/assets/icons/favicon.ico" sizes="48x48">
-        <link rel="icon" href="/assets/icons/favicon.svg" sizes="any" type="image/svg+xml">
-        <link rel="manifest" href="/assets/site.webmanifest">
-        <meta name="theme-color" content="#242424">
-        <link rel="stylesheet" href="/node_modules/@fontsource/ibm-plex-mono/latin.css">
-        <link rel="stylesheet" href="/node_modules/@fontsource/ibm-plex-mono/latin-italic.css">
-        <link rel="stylesheet" href="/node_modules/video.js/dist/video-js.min.css">
-        <link rel="stylesheet" href="/assets/css/main.css">
-        <link rel="stylesheet" href="/node_modules/videojs-plyr/css/videojs-plyr.min.css">
-        <style id="hide-player">
-            #tv {
-                display: none !important;
-                height: 0 !important;
-            }
-            @media screen and (max-width: 100vh) {
-                #channels, #search-results, #epg {
-                    margin-top: 0% !important;
-                }
-                #tv {
-                    display: block !important;
-                    transform: translateY(-100%);
-                }
-                #news {
-                    height: 100svh;
-                }
-            }
-        </style>
-        <style id="night-adult-channels">
-            .adult-marker.at-night {
-                display: none;
-            }
-        </style>
-        <style id="stretch-fix" class="cssfix" media="not all">
-            video {
-                object-fit: fill;
-                aspect-ratio: 16 / 9;
-                height: auto !important;
-                top: 50% !important;
-                transform: translateY(-50%);
-            }
-        </style>
-        <style id="raiplay-sound-fix" class="cssfix" media="not all">
-            #overlays.hbbtv-app iframe {
-                --hbbtv-wrapper-scale-multiplier: 1.5;
-            }
-        </style>
-        <style id="streamshow-embed-fix" class="cssfix" media="not all">
-            #overlays iframe {
-                height: auto;
-                aspect-ratio: 16 / 9;
-                transform: scale(1.024) translate(8px, calc(-50% / 1.012));
-                position: absolute;
-                top: 50%;
-            }
-            #overlays {
-                background: #000;
-                pointer-events: all;
-            }
-        </style>
-        <style id="squashed-height-fix" class="cssfix" media="not all">
-            video {
-                transform: scaleY(1.3333333333);
-            }
-        </style>
-        <style id="very-squashed-height-fix" class="cssfix" media="not all">
-            video {
-                transform: scaleY(2);
-            }
-        </style>
-        <style id="five-two-squashed-height-fix" class="cssfix" media="not all">
-            video {
-                transform: scaleY(1.40625);
-            }
-        </style>
-        <style id="center-iframe-fix" class="cssfix" media="not all">
-            #overlays iframe {
-                height: auto;
-                aspect-ratio: 16 / 9;
-                transform: translateY(-50%);
-                position: absolute;
-                top: 50%;
-            }
-            #overlays {
-                background: #000;
-                pointer-events: all;
-            }
-        </style>
-        <style id="servizistreaming-embed-fix" class="cssfix" media="not all">
-            @keyframes servizistreaming-embed-fix {
-                0% {
-                    height: calc(100% + 1px);
-                }
-                100% {
-                    height: 100%;
-                }
-            }
-            #overlays iframe {
-                position: absolute;
-                animation: servizistreaming-embed-fix 1s forwards 1s;
-            }
-        </style>
-        <style id="livetvuk-embed-fix" class="cssfix" media="not all">
-            #overlays iframe {
-                width: calc(100% + 16px);
-                transform: translateX(-8px);
-            }
-        </style>
-        <style id="native-hls-720p-iframe-fix" class="cssfix" media="not all">
-            #channels-column {
-                z-index: 4 !important;
-            }
-            @media screen and (min-width: 1706.6666px) {
-                #overlays iframe {
-                    transform: scale(min(calc(75vw / 1280%), calc(100vh / 720%)));
-                }
-            }
-        </style>
-        <style id="tv-style" media="not all">
-            #tv-settings {
-                font-size: 0.825rem;
-                text-align: right;
-                line-height: 1;
-                font-weight: 400;
-                width: 100%;
-                text-wrap-style: balance;
-                margin-right: 0.75rem;
-                opacity: 0.75;
-                display: block !important;
-            }
-            #tv-settings * {
-                line-height: 1;
-            }
-            #tv-settings img {
-                height: 0.825rem;
-            }
-            #icons > *:not(#settings-icon, #settings, #tv-settings) {
-                display: none;
-            }
-            .vjs-skip-backward-5, .vjs-skip-forward-5, .vjs-volume-panel, .vjs-menu-button, .vjs-picture-in-picture-control, .vjs-fullscreen-control, #search-input, #fullscreen-button-container {
-                display: none !important;
-            }
-            #settings-icon, .tv-settings-open, .tv-settings-open *, #tv, #tv * {
-                pointer-events: none !important;
-                user-select: none !important;
-            }
-            .channel.hbbtv-app, [data-translation-id="language"], #language, [data-translation-id="country"], #country {
-                display: none;
-            }
-            #settings {
-                position: fixed;
-                top: 0;
-                right: 0;
-                padding-left: 33.33333vw;
-                width: 100vw;
-                display: flex;
-                align-items: center;
-                background: transparent;
-            }
-            #settings .tooltip-content-box {
-                position: relative;
-                top: 0;
-                right: 0;
-                width: calc(66.6666vw - 4rem);
-                margin: 0.5rem 1rem;
-                padding: 1.5rem 1rem;
-                background: #000000bf;
-                backdrop-filter: blur(1rem);
-                border-radius: 1rem;
-            }
-            #region-selector {
-                flex-direction: row;
-                align-items: center;
-            }
-            #region-selector div {
-                display: flex;
-                max-width: 100%;
-            }
-            #region-selector .regions {
-                width: 100%;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            #region-selector input[type="radio"] {
-                margin: 0;
-                margin-right: 0.3333rem;
-            }
-            .region {
-                background: #111;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.5rem;
-                font-weight: 400;
-                margin: 0.25rem;
-            }
-            #region {
-                min-width: none !important;
-                margin-top: 1rem;
-                align-items: center;
-            }
-            .region-group {
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wesu TV - Zambia Live Streaming</title>
+    <!-- Add HLS.js for M3U8 stream support -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #e50914;
+            --secondary-color: #141414;
+            --card-bg: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --border-color: #2a2a2a;
+            --success-color: #46d369;
+            --warning-color: #f59e0b;
+            --error-color: #f56565;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #141414 0%, #1a1a1a 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Main Content */
+        .container {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color);
+            position: relative;
+            z-index: 100;
+        }
+
+        .category-tab {
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 101;
+        }
+
+        .category-tab:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.3);
+        }
+
+        .category-tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        /* Channel Grid */
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 100px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Channel Cards */
+        .channel-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .channel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .channel-card:hover::before {
+            left: 100%;
+        }
+
+        .channel-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 40px rgba(229, 9, 20, 0.3);
+        }
+
+        .channel-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .channel-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.2);
+        }
+
+        .channel-info {
+            flex: 1;
+        }
+
+        .channel-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+        }
+
+        .channel-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .channel-quality {
+            background: var(--success-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .channel-country {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            z-index: 1000;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: white;
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Loading Screen */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-content {
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Video Player - YouTube Style */
+        .video-player {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            display: none;
+            z-index: 9999;
+        }
+
+        .video-player.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .youtube-header {
+            background: #0f0f0f;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #303030;
+        }
+
+        .youtube-title-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .youtube-logo {
+            color: #ff0000;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .youtube-title {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .youtube-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .youtube-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .youtube-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .youtube-quality-selector {
+            position: relative;
+        }
+
+        .youtube-quality-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            min-width: 60px;
+            justify-content: center;
+        }
+
+        .youtube-quality-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .youtube-quality-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #1f1f1f;
+            border: 1px solid #303030;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            z-index: 1000;
+            min-width: 120px;
+            margin-top: 0.5rem;
+        }
+
+        .youtube-quality-dropdown.active {
+            display: block;
+        }
+
+        .youtube-quality-option {
+            padding: 0.6rem 1rem;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #303030;
+        }
+
+        .youtube-quality-option:last-child {
+            border-bottom: none;
+        }
+
+        .youtube-quality-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .youtube-quality-option.active {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+
+        .youtube-close-btn {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .youtube-close-btn:hover {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+        .youtube-video-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .youtube-video-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .youtube-video {
+            width: 100%;
+            height: auto;
+            max-height: calc(100vh - 200px);
+            background: #000;
+        }
+
+        .youtube-sidebar {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background: #0f0f0f;
+            border-left: 1px solid #303030;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .youtube-sidebar.active {
+            display: block;
+        }
+
+        .youtube-sidebar-item {
+            padding: 0.8rem;
+            border-bottom: 1px solid #303030;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .youtube-sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .youtube-sidebar-title {
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+
+        .youtube-sidebar-meta {
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        .youtube-progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .youtube-progress-fill {
+            height: 100%;
+            background: #ff0000;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 20px rgba(229, 9, 20, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
                 flex-direction: column;
-                width: 100%;
+                gap: 1rem;
+                text-align: center;
             }
-            .channel-program-times, .channel-program-progress, .channel-program-progress-background {
-                user-select: none;
-                pointer-events: none;
+
+            .header-stats {
+                display: none;
             }
-            .channel-program {
-                outline: none;
+
+            .container {
+                padding: 1rem;
+                margin-top: 120px;
             }
-            *:not(.channel-program):focus, .channel:has(.channel-program:focus) {
-                outline: #00B2FF auto 1px;
+
+            .channel-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
             }
-            #channels-column {
-                z-index: 9 !important;
+
+            .category-tabs {
+                gap: 0.5rem;
             }
-            * {
-                transition: none !important;
+
+            .category-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
             }
-        </style>
-        <style id="new-player-fix" media="screen and (max-width: 100vh)">
-            /* bruh */
-            .vjs-theme-plyr .vjs-play-progress .vjs-time-tooltip {
-                display: flex !important;
+
+            .bottom-nav {
+                gap: 1rem;
+                padding: 1rem;
             }
-            .vjs-theme-plyr .vjs-play-control {
-                margin-left: 0 !important;
+
+            .nav-item {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
             }
-        </style>
-        <style id="search"></style>
-        <style data-translation-id="playerLanguageCSS"></style>
-        <title>Zappr</title>
-    </head>
-    <body>
-        <div id="loading">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="2.25 2.25 19.5 19.5"><path fill="currentColor" d="M12 2.25c-5.384 0-9.75 4.366-9.75 9.75s4.366 9.75 9.75 9.75v-2.437A7.312 7.312 0 1 1 19.313 12h2.437c0-5.384-4.366-9.75-9.75-9.75"></path></svg>
-            <span>Zappr</span>
-        </div>
-        <div class="columns">
-            <div class="column is-one-third-widescreen is-one-quarter-fullhd is-two-fifths-desktop is-two-fifths-tablet p-0" id="channels-column">
-                <div id="channels" class="menu" tabindex="-1">
-                    <div id="urgent-alerts" class="header"></div>
-                    <div class="source-header first-source header">
-                        <img src="/assets/icons/previous.svg" data-translation-id="previousSource" data-translation-target="alt" class="previous">
-                        <span class="current-source" data-translation-id="mainSource"></span>
-                        <img src="/assets/icons/next.svg" data-translation-id="nextSource" data-translation-target="alt" class="next">
-                    </div>
-                </div>
-                <div id="search-results"></div>
-                <div id="epg">
-                    <h1 id="epg-header">
-                        <img src="/assets/icons/exit.svg" id="epg-exit" data-translation-id="epgExit" data-translation-target="alt">
-                        <div data-translation-id="epgHeaderText"></div>
-                        <span id="epg-date" class="first-day">
-                            <img src="/assets/icons/previous.svg" id="epg-previous-day" data-translation-id="epgPreviousDay" data-translation-target="alt">
-                            <span></span>
-                            <img src="/assets/icons/next.svg" id="epg-next-day" data-translation-id="epgNextDay" data-translation-target="alt">
-                        </span>
-                        <img src="/assets/icons/resize.svg" id="epg-resize" data-translation-id="epgResize" data-translation-target="alt">
-                    </h1>
-                    <div class="epg-items"></div>
-                </div>
-                <div id="search-input">
-                    <input type="text" data-translation-id="searchChannel" data-translation-target="placeholder">
-                </div>
-                <div class="toast-notification-container">
-                    <div class="toast-notification">
-                        <img src="/assets/icons/info.svg">
-                        <span data-translation-id="epgLoading"></span>
-                    </div>
-                </div>
-                <div id="bottom">
-                    <div id="info">
-                        <b>Zappr</b>
-                    </div>
-                    <div id="icons">
-                        <a href="#" id="install" hidden>
-                            <span data-translation-id="installPWA">Installa</span>
-                            <img src="/assets/icons/install.svg">
-                        </a>
-                        <a id="search-icon">
-                            <img src="/assets/icons/search.svg">
-                        </a>
-                        <a class="tooltip" data-target="#news">
-                            <img src="/assets/icons/news.svg">
-                        </a>
-                        <a class="tooltip" data-target="#info-tooltip">
-                            <img src="/assets/icons/info.svg">
-                        </a>
-                        <span id="tv-settings"><img src="assets/icons/back.svg"> <b>BACK</b> <span data-translation-id="tvChangeRegion">per cambiare regione</span></span>
-                        <a id="settings-icon" class="tooltip" data-target="#settings">
-                            <img src="/assets/icons/settings.svg">
-                        </a>
-                        <div class="tooltip-content" id="settings">
-                            <div class="tooltip-content-box">
-                                <div id="region-selector">
-                                    <span data-translation-id="language"></span>
-                                    <select id="language"></select>
-                                    <span data-translation-id="country"></span>
-                                    <select id="country"></select>
-                                    <span data-translation-id="region"></span>
-                                    <select id="region"></select>
-                                </div>
-                                <a id="save-and-reload" class="tooltip-button" data-translation-id="saveAndReload" hidden></a>
-                            </div>
-                        </div>
-                        <div class="tooltip-content" id="info-tooltip">
-                            <div class="tooltip-content-box" data-translation-id="infoTooltip"></div>
-                        </div>
-                        <div class="tooltip-content news-not-loaded" id="news">
-                            <div class="tooltip-content-box">
-                                <div id="news-info">
-                                    <span data-translation-id="newsInstructions"></span>
-                                    <span data-translation-id="newsHosting"></span>
-                                </div>
-                                <div id="news-list"></div>
-                                <a rel="me" href="https://mastodon.uno/@zappr" hidden id="mastodon-verification"></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <video id="tv" class="video-js vjs-theme-plyr column p-0" controls></video>
-            <canvas width="512" height="512"></canvas>
-        </div>
-        <div id="overlays">
-            <div id="lcn-typing">
-                <div id="lcn-typed"></div>
-                <div id="controls" data-translation-id="lcnTyping"></div>
+
+            video {
+                height: 300px;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        /* Status Messages */
+        .status-message {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .status-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .status-message div {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Ensure buttons are always visible */
+        .close-btn, .nav-item, .category-tab, .search-input {
+            z-index: 100;
+            position: relative;
+        }
+
+        /* Fix overlapping elements */
+        .video-container {
+            width: 95%;
+            max-width: 1200px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading" class="loading">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div>🇿🇲 Loading WESU TV...</div>
+            <div style="color: var(--text-secondary); margin-top: 1rem; font-size: 0.9rem;">
+                Fetching Zambia-friendly channels from around the world...
             </div>
         </div>
-        <script type="module">
-            if (typeof navigator.serviceWorker != "undefined") {
-                navigator.serviceWorker.register(new URL("/assets/js/sw.js", import.meta.url));
-            };
-        </script>
-        <script src="/assets/js/main.js" type="module"></script>
-    </body>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-tv"></i>
+                <span>Wesu TV Zambia</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat">
+                    <i class="fas fa-globe"></i>
+                    <span>Zambia Optimized</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <span id="channelCount">0 Channels</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-wifi"></i>
+                    <span>Free Streaming</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search channels...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <div class="category-tab active" data-category="all">
+                <i class="fas fa-border-all"></i>
+                <span>All Channels</span>
+            </div>
+            <div class="category-tab" data-category="entertainment">
+                <i class="fas fa-film"></i>
+                <span>Entertainment</span>
+            </div>
+            <div class="category-tab" data-category="news">
+                <i class="fas fa-newspaper"></i>
+                <span>News</span>
+            </div>
+            <div class="category-tab" data-category="sports">
+                <i class="fas fa-football"></i>
+                <span>Sports</span>
+            </div>
+            <div class="category-tab" data-category="music">
+                <i class="fas fa-music"></i>
+                <span>Music</span>
+            </div>
+            <div class="category-tab" data-category="movies">
+                <i class="fas fa-video"></i>
+                <span>Movies</span>
+            </div>
+            <div class="category-tab" data-category="kids">
+                <i class="fas fa-child"></i>
+                <span>Kids</span>
+            </div>
+            <div class="category-tab" data-category="english">
+                <i class="fas fa-language"></i>
+                <span>English</span>
+            </div>
+            <div class="category-tab" data-category="religious">
+                <i class="fas fa-pray"></i>
+                <span>Religious</span>
+            </div>
+            <div class="category-tab" data-category="radio">
+                <i class="fas fa-radio"></i>
+                <span>Radio</span>
+            </div>
+            <div class="category-tab" data-category="zambia">
+                <i class="fas fa-tv"></i>
+                <span>🇿🇲 Zambia</span>
+            </div>
+            <div class="category-tab" data-category="africa">
+                <i class="fas fa-globe-africa"></i>
+                <span>African</span>
+            </div>
+        </div>
+
+        <!-- Channel Grid -->
+        <div id="channelGrid" class="channel-grid">
+            <!-- Channels will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a class="nav-item active" data-page="channels">
+            <i class="fas fa-tv"></i>
+            <span>Channels</span>
+        </a>
+        <a class="nav-item" data-page="guide">
+            <i class="fas fa-list"></i>
+            <span>Guide</span>
+        </a>
+        <a class="nav-item" data-page="search">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+        <a class="nav-item" data-page="radio">
+            <i class="fas fa-radio"></i>
+            <span>Radio</span>
+        </a>
+        <a class="nav-item" data-page="profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Video Player Modal - YouTube Style -->
+    <div id="videoPlayer" class="video-player">
+        <div class="youtube-header">
+            <div class="youtube-title-section">
+                <div class="youtube-logo">
+                    <i class="fab fa-youtube"></i>
+                    <span>WESU TV</span>
+                </div>
+                <div id="youtubeTitle" class="youtube-title">Loading...</div>
+            </div>
+            <div class="youtube-controls">
+                <div class="youtube-quality-selector">
+                    <button class="youtube-quality-btn" onclick="toggleQualityDropdown()">
+                        <span id="currentQuality">Auto</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="qualityDropdown" class="youtube-quality-dropdown">
+                        <div class="youtube-quality-option active" data-quality="auto" onclick="changeQuality('auto')">Auto</div>
+                        <div class="youtube-quality-option" data-quality="1080p" onclick="changeQuality('1080p')">1080p</div>
+                        <div class="youtube-quality-option" data-quality="720p" onclick="changeQuality('720p')">720p</div>
+                        <div class="youtube-quality-option" data-quality="480p" onclick="changeQuality('480p')">480p</div>
+                        <div class="youtube-quality-option" data-quality="360p" onclick="changeQuality('360p')">360p</div>
+                        <div class="youtube-quality-option" data-quality="240p" onclick="changeQuality('240p')">240p</div>
+                    </div>
+                </div>
+                <button class="youtube-btn" onclick="toggleSidebar()">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button class="youtube-btn" onclick="toggleFullscreen()">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button class="youtube-btn youtube-close-btn" onclick="closePlayer()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="youtube-video-container">
+            <div class="youtube-video-wrapper">
+                <video id="videoElement" class="youtube-video" controls></video>
+                <div class="youtube-progress-bar" onclick="seekVideo(event)">
+                    <div class="youtube-progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <div id="youtubeSidebar" class="youtube-sidebar">
+                <!-- Related channels will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Zambia-Optimized IPTV Channels (Real Channels Only)
+        const zambiaChannels = [];
+
+        // IPTV Playlists for additional channels
+        const iptvPlaylists = {
+            africa: 'https://iptv-org.github.io/iptv/regions/afr.m3u',
+            entertainment: 'https://iptv-org.github.io/iptv/categories/entertainment.m3u',
+            news: 'https://iptv-org.github.io/iptv/categories/news.m3u',
+            sports: 'https://iptv-org.github.io/iptv/categories/sports.m3u',
+            music: 'https://iptv-org.github.io/iptv/categories/music.m3u',
+            movies: 'https://iptv-org.github.io/iptv/categories/movies.m3u',
+            kids: 'https://iptv-org.github.io/iptv/categories/kids.m3u',
+            religious: 'https://iptv-org.github.io/iptv/categories/religious.m3u',
+            radio: 'https://raw.githubusercontent.com/lambirou/iptv/master/radio.m3u',
+            english: 'https://iptv-org.github.io/iptv/languages/eng.m3u',
+            // Zambia-friendly country playlists
+            uk: 'https://iptv-org.github.io/iptv/countries/gb.m3u',
+            us: 'https://iptv-org.github.io/iptv/countries/us.m3u',
+            southafrica: 'https://iptv-org.github.io/iptv/countries/za.m3u',
+            kenya: 'https://iptv-org.github.io/iptv/countries/ke.m3u',
+            nigeria: 'https://iptv-org.github.io/iptv/countries/ng.m3u',
+            zambia: 'https://iptv-org.github.io/iptv/countries/zm.m3u',
+            india: 'https://iptv-org.github.io/iptv/countries/in.m3u',
+            france: 'https://iptv-org.github.io/iptv/countries/fr.m3u',
+            germany: 'https://iptv-org.github.io/iptv/countries/de.m3u',
+            canada: 'https://iptv-org.github.io/iptv/countries/ca.m3u'
+        };
+
+        let currentChannels = [...zambiaChannels];
+        let filteredChannels = [...zambiaChannels];
+        let currentCategory = 'all';
+        let hlsInstance = null;
+        let currentChannel = null;
+
+        // Initialize App
+        async function initApp() {
+            console.log('🚀 Wesu TV Zambia Starting...');
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Load 5000+ channels from IPTV
+            await loadAdditionalChannels();
+            
+            // Display channels
+            displayChannels(currentChannels);
+            
+            // Update channel count
+            updateChannelCount(currentChannels.length);
+            
+            // Hide loading screen
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                console.log('✅ Loading screen hidden');
+            }, 3000);
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Category tabs
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const category = e.currentTarget.dataset.category;
+                    switchCategory(category);
+                });
+            });
+
+            // Search input
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch(e.target.value);
+                }, 300);
+            });
+
+            // Bottom navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = item.dataset.page;
+                    handleNavigation(page);
+                    
+                    // Update active state
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+        }
+
+        // Load Additional Channels from IPTV
+        async function loadAdditionalChannels() {
+            try {
+                console.log('📡 Loading Zambia-friendly channels from IPTV...');
+                
+                // Load African channels (most likely to work in Zambia)
+                try {
+                    const africaResponse = await fetch(iptvPlaylists.africa);
+                    const africaM3uText = await africaResponse.text();
+                    const africaChannels = parseM3U(africaM3uText);
+                    
+                    const filteredAfricaChannels = africaChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add all African channels
+                    currentChannels.push(...filteredAfricaChannels);
+                    filteredChannels.push(...filteredAfricaChannels);
+                    
+                    console.log(`✅ Added ${filteredAfricaChannels.length} African channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load African channels');
+                }
+                
+                // Load South Africa channels (very likely to work in Zambia)
+                try {
+                    const saResponse = await fetch(iptvPlaylists.southafrica);
+                    const saM3uText = await saResponse.text();
+                    const saChannels = parseM3U(saM3uText);
+                    
+                    const filteredSaChannels = saChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    currentChannels.push(...filteredSaChannels);
+                    filteredChannels.push(...filteredSaChannels);
+                    
+                    console.log(`✅ Added ${filteredSaChannels.length} South Africa channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load South Africa channels');
+                }
+                
+                // Load Kenya channels (likely to work in Zambia)
+                try {
+                    const kenyaResponse = await fetch(iptvPlaylists.kenya);
+                    const kenyaM3uText = await kenyaResponse.text();
+                    const kenyaChannels = parseM3U(kenyaM3uText);
+                    
+                    const filteredKenyaChannels = kenyaChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    currentChannels.push(...filteredKenyaChannels);
+                    filteredChannels.push(...filteredKenyaChannels);
+                    
+                    console.log(`✅ Added ${filteredKenyaChannels.length} Kenya channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load Kenya channels');
+                }
+                
+                // Load Nigeria channels (likely to work in Zambia)
+                try {
+                    const nigeriaResponse = await fetch(iptvPlaylists.nigeria);
+                    const nigeriaM3uText = await nigeriaResponse.text();
+                    const nigeriaChannels = parseM3U(nigeriaM3uText);
+                    
+                    const filteredNigeriaChannels = nigeriaChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    currentChannels.push(...filteredNigeriaChannels);
+                    filteredChannels.push(...filteredNigeriaChannels);
+                    
+                    console.log(`✅ Added ${filteredNigeriaChannels.length} Nigeria channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load Nigeria channels');
+                }
+                
+                // Load UK channels (often work in Zambia)
+                try {
+                    const ukResponse = await fetch(iptvPlaylists.uk);
+                    const ukM3uText = await ukResponse.text();
+                    const ukChannels = parseM3U(ukM3uText);
+                    
+                    const filteredUkChannels = ukChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add first 300 UK channels
+                    const topUkChannels = filteredUkChannels.slice(0, 300);
+                    currentChannels.push(...topUkChannels);
+                    filteredChannels.push(...topUkChannels);
+                    
+                    console.log(`✅ Added ${topUkChannels.length} UK channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load UK channels');
+                }
+                
+                // Load France channels (often work in Zambia)
+                try {
+                    const franceResponse = await fetch(iptvPlaylists.france);
+                    const franceM3uText = await franceResponse.text();
+                    const franceChannels = parseM3U(franceM3uText);
+                    
+                    const filteredFranceChannels = franceChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add first 200 France channels
+                    const topFranceChannels = filteredFranceChannels.slice(0, 200);
+                    currentChannels.push(...topFranceChannels);
+                    filteredChannels.push(...topFranceChannels);
+                    
+                    console.log(`✅ Added ${topFranceChannels.length} France channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load France channels');
+                }
+                
+                // Load India channels (often work in Zambia)
+                try {
+                    const indiaResponse = await fetch(iptvPlaylists.india);
+                    const indiaM3uText = await indiaResponse.text();
+                    const indiaChannels = parseM3U(indiaM3uText);
+                    
+                    const filteredIndiaChannels = indiaChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add first 300 India channels
+                    const topIndiaChannels = filteredIndiaChannels.slice(0, 300);
+                    currentChannels.push(...topIndiaChannels);
+                    filteredChannels.push(...topIndiaChannels);
+                    
+                    console.log(`✅ Added ${topIndiaChannels.length} India channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load India channels');
+                }
+                
+                // Load entertainment channels (global, likely to work)
+                try {
+                    const entertainmentResponse = await fetch(iptvPlaylists.entertainment);
+                    const entertainmentM3uText = await entertainmentResponse.text();
+                    const entertainmentChannels = parseM3U(entertainmentM3uText);
+                    
+                    const filteredEntertainmentChannels = entertainmentChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add first 500 entertainment channels
+                    const topEntertainmentChannels = filteredEntertainmentChannels.slice(0, 500);
+                    currentChannels.push(...topEntertainmentChannels);
+                    filteredChannels.push(...topEntertainmentChannels);
+                    
+                    console.log(`✅ Added ${topEntertainmentChannels.length} entertainment channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load entertainment channels');
+                }
+                
+                // Load news channels (global, likely to work)
+                try {
+                    const newsResponse = await fetch(iptvPlaylists.news);
+                    const newsM3uText = await newsResponse.text();
+                    const newsChannels = parseM3U(newsM3uText);
+                    
+                    const filteredNewsChannels = newsChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add first 300 news channels
+                    const topNewsChannels = filteredNewsChannels.slice(0, 300);
+                    currentChannels.push(...topNewsChannels);
+                    filteredChannels.push(...topNewsChannels);
+                    
+                    console.log(`✅ Added ${topNewsChannels.length} news channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load news channels');
+                }
+                
+                // Load sports channels (global, likely to work)
+                try {
+                    const sportsResponse = await fetch(iptvPlaylists.sports);
+                    const sportsM3uText = await sportsResponse.text();
+                    const sportsChannels = parseM3U(sportsM3uText);
+                    
+                    const filteredSportsChannels = sportsChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add first 300 sports channels
+                    const topSportsChannels = filteredSportsChannels.slice(0, 300);
+                    currentChannels.push(...topSportsChannels);
+                    filteredChannels.push(...topSportsChannels);
+                    
+                    console.log(`✅ Added ${topSportsChannels.length} sports channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load sports channels');
+                }
+                
+                // Load Zambia channels
+                try {
+                    const zambiaResponse = await fetch(iptvPlaylists.zambia);
+                    const zambiaM3uText = await zambiaResponse.text();
+                    const zambiaChannels = parseM3U(zambiaM3uText);
+                    
+                    console.log(`📊 Raw Zambia channels found: ${zambiaChannels.length}`);
+                    
+                    // Zambia channels are already family-friendly, no need for adult filtering
+                    const filteredZambiaChannels = zambiaChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    console.log(`📊 Filtered Zambia channels: ${filteredZambiaChannels.length}`);
+                    
+                    // Add all Zambia channels
+                    currentChannels.push(...filteredZambiaChannels);
+                    filteredChannels.push(...filteredZambiaChannels);
+                    
+                    console.log(`✅ Added ${filteredZambiaChannels.length} Zambia channels`);
+                    
+                    // Log first few Zambia channels for debugging
+                    if (filteredZambiaChannels.length > 0) {
+                        console.log('📋 Sample Zambia channels:', filteredZambiaChannels.slice(0, 3).map(c => c.name));
+                    }
+                } catch (error) {
+                    console.log('⚠️ Could not load Zambia channels:', error);
+                }
+                
+                // Load Kids channels
+                try {
+                    const kidsResponse = await fetch(iptvPlaylists.kids);
+                    const kidsM3uText = await kidsResponse.text();
+                    const kidsChannels = parseM3U(kidsM3uText);
+                    
+                    console.log(`📊 Raw Kids channels found: ${kidsChannels.length}`);
+                    
+                    // Kids channels are already family-friendly, no need for adult filtering
+                    const filteredKidsChannels = kidsChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    console.log(`📊 Filtered Kids channels: ${filteredKidsChannels.length}`);
+                    
+                    // Add all Kids channels
+                    currentChannels.push(...filteredKidsChannels);
+                    filteredChannels.push(...filteredKidsChannels);
+                    
+                    console.log(`✅ Added ${filteredKidsChannels.length} Kids channels`);
+                    
+                    // Log first few Kids channels for debugging
+                    if (filteredKidsChannels.length > 0) {
+                        console.log('📋 Sample Kids channels:', filteredKidsChannels.slice(0, 3).map(c => c.name));
+                    }
+                } catch (error) {
+                    console.log('⚠️ Could not load Kids channels:', error);
+                }
+                
+                // Load English channels
+                try {
+                    const englishResponse = await fetch(iptvPlaylists.english);
+                    const englishM3uText = await englishResponse.text();
+                    const englishChannels = parseM3U(englishM3uText);
+                    
+                    console.log(`📊 Raw English channels found: ${englishChannels.length}`);
+                    
+                    const filteredEnglishChannels = englishChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    console.log(`📊 Filtered English channels: ${filteredEnglishChannels.length}`);
+                    
+                    // Add all English channels (no limit for debugging)
+                    currentChannels.push(...filteredEnglishChannels);
+                    filteredChannels.push(...filteredEnglishChannels);
+                    
+                    console.log(`✅ Added ${filteredEnglishChannels.length} English channels`);
+                    
+                    // Log first few English channels for debugging
+                    if (filteredEnglishChannels.length > 0) {
+                        console.log('📋 Sample English channels:', filteredEnglishChannels.slice(0, 3).map(c => c.name));
+                    }
+                } catch (error) {
+                    console.log('⚠️ Could not load English channels:', error);
+                }
+                
+                // Load movies channels
+                try {
+                    const moviesResponse = await fetch(iptvPlaylists.movies);
+                    const moviesM3uText = await moviesResponse.text();
+                    const moviesChannels = parseM3U(moviesM3uText);
+                    
+                    const filteredMoviesChannels = moviesChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add first 400 movies channels
+                    const topMoviesChannels = filteredMoviesChannels.slice(0, 400);
+                    currentChannels.push(...topMoviesChannels);
+                    filteredChannels.push(...topMoviesChannels);
+                    
+                    console.log(`✅ Added ${topMoviesChannels.length} movies channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load movies channels');
+                }
+                
+                // Load radio channels
+                try {
+                    const radioResponse = await fetch(iptvPlaylists.radio);
+                    const radioM3uText = await radioResponse.text();
+                    const radioChannels = parseM3U(radioM3uText);
+                    
+                    const filteredRadioChannels = radioChannels.filter(channel => {
+                        const name = channel.name.toLowerCase();
+                        return !name.includes('xxx') && !name.includes('adult') && !name.includes('porn');
+                    });
+                    
+                    // Add all radio channels
+                    currentChannels.push(...filteredRadioChannels);
+                    filteredChannels.push(...filteredRadioChannels);
+                    
+                    console.log(`✅ Added ${filteredRadioChannels.length} radio channels`);
+                } catch (error) {
+                    console.log('⚠️ Could not load radio channels');
+                }
+                
+                console.log(`🎉 Total Zambia-friendly channels loaded: ${currentChannels.length}`);
+                
+            } catch (error) {
+                console.log('⚠️ Could not load IPTV channels, using demo channels only');
+            }
+        }
+
+        // Parse M3U
+        function parseM3U(m3uText) {
+            const lines = m3uText.split('\n');
+            const channels = [];
+            let currentChannel = {};
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('#EXTINF:')) {
+                    const nameMatch = line.match(/,(.+)$/);
+                    const countryMatch = line.match(/tvg-country="([^"]+)"/);
+                    const groupMatch = line.match(/group-title="([^"]+)"/);
+                    
+                    currentChannel = {
+                        name: nameMatch ? nameMatch[1].trim() : 'Unknown Channel',
+                        country: countryMatch ? countryMatch[1] : 'Unknown',
+                        category: groupMatch ? groupMatch[1].toLowerCase() : 'general',
+                        url: ''
+                    };
+                } else if (line && !line.startsWith('#') && currentChannel.name) {
+                    currentChannel.url = line;
+                    channels.push({...currentChannel});
+                    currentChannel = {};
+                }
+            }
+            
+            return channels;
+        }
+
+        // Switch Category
+        async function switchCategory(category) {
+            currentCategory = category;
+            
+            // Update active tab
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.category === category) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Filter channels
+            if (category === 'all') {
+                filteredChannels = [...currentChannels];
+            } else if (category === 'english') {
+                filteredChannels = currentChannels.filter(channel => 
+                    channel.name.toLowerCase().includes('english') ||
+                    channel.name.toLowerCase().includes('uk') ||
+                    channel.name.toLowerCase().includes('us') ||
+                    channel.name.toLowerCase().includes('bbc') ||
+                    channel.name.toLowerCase().includes('cnn') ||
+                    channel.name.toLowerCase().includes('fox') ||
+                    channel.name.toLowerCase().includes('abc') ||
+                    channel.name.toLowerCase().includes('nbc') ||
+                    channel.name.toLowerCase().includes('cbs') ||
+                    channel.name.toLowerCase().includes('sky') ||
+                    channel.country.toLowerCase().includes('united kingdom') ||
+                    channel.country.toLowerCase().includes('united states') ||
+                    channel.country.toLowerCase().includes('uk') ||
+                    channel.country.toLowerCase().includes('usa')
+                );
+            } else if (category === 'africa') {
+                filteredChannels = currentChannels.filter(channel => 
+                    channel.country.toLowerCase().includes('africa') ||
+                    channel.country.toLowerCase().includes('south africa') ||
+                    channel.country.toLowerCase().includes('kenya') ||
+                    channel.country.toLowerCase().includes('nigeria') ||
+                    channel.country.toLowerCase().includes('zambia') ||
+                    channel.country.toLowerCase().includes('zimbabwe') ||
+                    channel.country.toLowerCase().includes('botswana') ||
+                    channel.country.toLowerCase().includes('namibia') ||
+                    channel.country.toLowerCase().includes('mozambique') ||
+                    channel.country.toLowerCase().includes('tanzania') ||
+                    channel.country.toLowerCase().includes('ghana') ||
+                    channel.country.toLowerCase().includes('uganda')
+                );
+            } else if (category === 'zambia') {
+                filteredChannels = currentChannels.filter(channel => 
+                    channel.country.toLowerCase().includes('zambia') ||
+                    channel.country.toLowerCase().includes('zm') ||
+                    channel.name.toLowerCase().includes('zambia') ||
+                    channel.name.toLowerCase().includes('znbc') ||
+                    channel.name.toLowerCase().includes('prime tv') ||
+                    channel.name.toLowerCase().includes('muvi tv') ||
+                    channel.name.toLowerCase().includes('diamond tv') ||
+                    channel.name.toLowerCase().includes('copperbelt') ||
+                    channel.name.toLowerCase().includes('lusaka')
+                );
+            } else {
+                filteredChannels = currentChannels.filter(channel => 
+                    channel.category === category || 
+                    channel.name.toLowerCase().includes(category)
+                );
+            }
+            
+            console.log(`📂 Category: ${category}, Channels: ${filteredChannels.length}`);
+            displayChannels(filteredChannels);
+            updateChannelCount(filteredChannels.length);
+        }
+
+        // Perform Search
+        function performSearch(searchTerm) {
+            if (!searchTerm) {
+                filteredChannels = currentCategory === 'all' ? 
+                    [...currentChannels] : 
+                    currentChannels.filter(channel => channel.category === currentCategory);
+            } else {
+                const term = searchTerm.toLowerCase();
+                filteredChannels = currentChannels.filter(channel => 
+                    channel.name.toLowerCase().includes(term) ||
+                    channel.category.toLowerCase().includes(term) ||
+                    channel.country.toLowerCase().includes(term)
+                );
+            }
+
+            displayChannels(filteredChannels);
+            updateChannelCount(filteredChannels.length);
+        }
+
+        // Display Channels
+        function displayChannels(channels) {
+            const channelGrid = document.getElementById('channelGrid');
+            
+            if (channels.length === 0) {
+                channelGrid.innerHTML = `
+                    <div class="status-message">
+                        <i class="fas fa-search"></i>
+                        <div>No channels found</div>
+                    </div>
+                `;
+                return;
+            }
+
+            channelGrid.innerHTML = channels.map((channel, index) => createChannelCard(channel, index)).join('');
+        }
+
+        // Create Channel Card
+        function createChannelCard(channel, index) {
+            return `
+                <div class="channel-card" onclick="playChannel('${channel.name}', '${channel.url}', '${channel.category}', '${channel.country}', '${channel.quality || 'HD'}')">
+                    <div class="channel-header">
+                        <div class="channel-logo">
+                            ${channel.logo || '📺'}
+                        </div>
+                        <div class="channel-info">
+                            <div class="channel-name">${channel.name}</div>
+                            <div class="channel-meta">
+                                <span class="channel-country">${channel.country}</span>
+                                <span class="channel-quality">${channel.quality || 'HD'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update Channel Count
+        function updateChannelCount(count) {
+            document.getElementById('channelCount').textContent = `${count} Channels`;
+        }
+
+        // Play Channel - YouTube Style
+        function playChannel(name, url, category, country, quality) {
+            console.log(`🎬 Playing: ${name}`);
+            
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoElement = document.getElementById('videoElement');
+            const videoTitle = document.getElementById('youtubeTitle');
+            
+            // Set current channel
+            currentChannel = { name, url, category, country, quality };
+            
+            // Show loading state
+            videoTitle.textContent = `Loading ${name}...`;
+            
+            // Set video source
+            videoElement.src = url;
+            
+            // Show player
+            videoPlayer.classList.add('active');
+            
+            // Update title after loading
+            setTimeout(() => {
+                videoTitle.textContent = `${name} | ${country} | ${quality}`;
+            }, 1500);
+            
+            // Load related channels in sidebar
+            loadRelatedChannels(category);
+            
+            // Play HLS or MP4 stream
+            if (url.includes('.m3u8')) {
+                playHLSStream(url, videoElement);
+            } else {
+                playNativeStream(url, videoElement);
+            }
+            
+            // Setup progress bar
+            setupProgressBar();
+        }
+
+        // Load Related Channels in Sidebar
+        function loadRelatedChannels(currentCategory) {
+            const sidebar = document.getElementById('youtubeSidebar');
+            const relatedChannels = currentChannels.filter(channel => 
+                channel.category === currentCategory && channel !== currentChannel
+            ).slice(0, 10);
+            
+            sidebar.innerHTML = relatedChannels.map(channel => `
+                <div class="youtube-sidebar-item" onclick="playChannel('${channel.name}', '${channel.url}', '${channel.category}', '${channel.country}', '${channel.quality}')">
+                    <div class="youtube-sidebar-title">${channel.name}</div>
+                    <div class="youtube-sidebar-meta">${channel.country} • ${channel.quality}</div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('youtubeSidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Quality Selection Functions
+        function toggleQualityDropdown() {
+            const dropdown = document.getElementById('qualityDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function changeQuality(quality) {
+            const currentQualityElement = document.getElementById('currentQuality');
+            const qualityOptions = document.querySelectorAll('.youtube-quality-option');
+            const videoElement = document.getElementById('videoElement');
+            
+            // Update current quality display
+            currentQualityElement.textContent = quality;
+            
+            // Update active state
+            qualityOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.quality === quality) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // Apply quality changes
+            applyQualityChange(quality, videoElement);
+            
+            // Close dropdown
+            const dropdown = document.getElementById('qualityDropdown');
+            dropdown.classList.remove('active');
+        }
+
+        function applyQualityChange(quality, videoElement) {
+            const currentTime = videoElement.currentTime;
+            const wasPlaying = !videoElement.paused;
+            
+            // For HLS streams, we can try to change quality levels
+            if (videoElement.hls && hlsInstance) {
+                switch(quality) {
+                    case '1080p':
+                        hlsInstance.currentLevel = hlsInstance.levels.length - 1;
+                        break;
+                    case '720p':
+                        hlsInstance.currentLevel = Math.max(0, hlsInstance.levels.length - 2);
+                        break;
+                    case '480p':
+                        hlsInstance.currentLevel = Math.max(0, hlsInstance.levels.length - 3);
+                        break;
+                    case '360p':
+                        hlsInstance.currentLevel = Math.max(0, hlsInstance.levels.length - 4);
+                        break;
+                    case '240p':
+                        hlsInstance.currentLevel = 0;
+                        break;
+                    case 'auto':
+                        hlsInstance.currentLevel = -1; // Auto
+                        break;
+                }
+            } else {
+                // For non-HLS streams, we can simulate quality by adjusting video dimensions
+                switch(quality) {
+                    case '1080p':
+                        videoElement.style.maxHeight = '1080px';
+                        break;
+                    case '720p':
+                        videoElement.style.maxHeight = '720px';
+                        break;
+                    case '480p':
+                        videoElement.style.maxHeight = '480px';
+                        break;
+                    case '360p':
+                        videoElement.style.maxHeight = '360px';
+                        break;
+                    case '240p':
+                        videoElement.style.maxHeight = '240px';
+                        break;
+                    case 'auto':
+                        videoElement.style.maxHeight = 'calc(100vh - 200px)';
+                        break;
+                }
+            }
+            
+            // Restore playback position
+            videoElement.currentTime = currentTime;
+            if (wasPlaying) {
+                videoElement.play().catch(error => {
+                    console.error('Error resuming playback:', error);
+                });
+            }
+        }
+
+        // Close quality dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const qualitySelector = document.querySelector('.youtube-quality-selector');
+            const dropdown = document.getElementById('qualityDropdown');
+            
+            if (!qualitySelector.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // Toggle Fullscreen
+        function toggleFullscreen() {
+            const videoElement = document.getElementById('videoElement');
+            if (videoElement.requestFullscreen) {
+                videoElement.requestFullscreen();
+            } else if (videoElement.webkitRequestFullscreen) {
+                videoElement.webkitRequestFullscreen();
+            } else if (videoElement.msRequestFullscreen) {
+                videoElement.msRequestFullscreen();
+            }
+        }
+
+        // Setup Progress Bar
+        function setupProgressBar() {
+            const videoElement = document.getElementById('videoElement');
+            const progressFill = document.getElementById('progressFill');
+            
+            videoElement.addEventListener('timeupdate', () => {
+                const progress = (videoElement.currentTime / videoElement.duration) * 100;
+                progressFill.style.width = progress + '%';
+            });
+        }
+
+        // Seek Video
+        function seekVideo(event) {
+            const videoElement = document.getElementById('videoElement');
+            const progressBar = event.currentTarget;
+            const clickX = event.offsetX;
+            const width = progressBar.offsetWidth;
+            const duration = videoElement.duration;
+            
+            if (duration) {
+                const newTime = (clickX / width) * duration;
+                videoElement.currentTime = newTime;
+            }
+        }
+
+        // Play HLS Stream
+        function playHLSStream(url, videoElement) {
+            console.log('🎬 Playing HLS stream:', url);
+            
+            if (Hls.isSupported()) {
+                // Destroy previous instance
+                if (hlsInstance) {
+                    hlsInstance.destroy();
+                }
+                
+                hlsInstance = new Hls({
+                    debug: false,
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    backBufferLength: 90
+                });
+                
+                hlsInstance.loadSource(url);
+                hlsInstance.attachMedia(videoElement);
+                
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                    console.log('✅ HLS manifest parsed, playing...');
+                    videoElement.play().catch(error => {
+                        console.error('❌ Error playing HLS:', error);
+                        showPlaybackError(error);
+                    });
+                });
+                
+                hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                    console.error('❌ HLS Error:', data);
+                    if (data.fatal) {
+                        switch(data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.log('🔄 Network error, trying to recover...');
+                                hlsInstance.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.log('🔄 Media error, trying to recover...');
+                                hlsInstance.recoverMediaError();
+                                break;
+                            default:
+                                showPlaybackError(new Error('Stream temporarily unavailable'));
+                                break;
+                        }
+                    }
+                });
+                
+            } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                console.log('🍎 Using native HLS support');
+                videoElement.play().catch(error => {
+                    console.error('❌ Error playing native HLS:', error);
+                    showPlaybackError(error);
+                });
+            } else {
+                showPlaybackError(new Error('HLS streaming not supported in this browser'));
+            }
+        }
+
+        // Play Native Stream
+        function playNativeStream(url, videoElement) {
+            console.log('🎬 Playing native stream:', url);
+            videoElement.play().catch(error => {
+                console.error('❌ Error playing native stream:', error);
+                showPlaybackError(error);
+            });
+        }
+
+        // Show Playback Error
+        function showPlaybackError(error) {
+            const errorMessage = `Unable to play this channel.\n\nThis might be due to:\n• Stream temporarily down\n• Network connectivity issues\n• Geo-restrictions\n\nPlease try another channel.`;
+            alert(errorMessage);
+        }
+
+        // Close Player - YouTube Style
+        function closePlayer() {
+            console.log('🔴 Closing player...');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoElement = document.getElementById('videoElement');
+            const sidebar = document.getElementById('youtubeSidebar');
+            
+            videoPlayer.classList.remove('active');
+            sidebar.classList.remove('active');
+            videoElement.pause();
+            
+            // Destroy HLS instance if it exists
+            if (videoElement.hls) {
+                videoElement.hls.destroy();
+                videoElement.hls = null;
+            }
+            
+            videoElement.src = '';
+            videoElement.load(); // Reset video element
+            
+            // Reset progress bar
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = '0%';
+        }
+
+        // Handle Navigation
+        function handleNavigation(page) {
+            const channelGrid = document.getElementById('channelGrid');
+            
+            switch(page) {
+                case 'channels':
+                    displayChannels(filteredChannels);
+                    break;
+                case 'guide':
+                    channelGrid.innerHTML = `
+                        <div class="status-message">
+                            <i class="fas fa-list"></i>
+                            <div>Program Guide</div>
+                            <div style="color: var(--text-secondary); margin-top: 1rem;">
+                                Browse channels by category using the tabs above.<br>
+                                Each category shows channels optimized for Zambia.
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'search':
+                    document.getElementById('searchInput').focus();
+                    break;
+                case 'radio':
+                    // Filter and display radio channels only
+                    const radioChannels = currentChannels.filter(channel => 
+                        channel.category === 'radio' || 
+                        channel.name.toLowerCase().includes('radio') ||
+                        channel.name.toLowerCase().includes('fm') ||
+                        channel.name.toLowerCase().includes('music')
+                    );
+                    
+                    if (radioChannels.length > 0) {
+                        displayChannels(radioChannels);
+                    } else {
+                        channelGrid.innerHTML = `
+                            <div class="status-message">
+                                <i class="fas fa-radio"></i>
+                                <div>Radio Channels</div>
+                                <div style="color: var(--text-secondary); margin-top: 1rem;">
+                                    Loading radio stations from around the world...
+                                </div>
+                            </div>
+                        `;
+                    }
+                    break;
+                case 'profile':
+                    channelGrid.innerHTML = `
+                        <div class="status-message">
+                            <i class="fas fa-user"></i>
+                            <div>WESU TV Profile</div>
+                            <div style="color: var(--text-secondary); margin-top: 1rem;">
+                                <strong>🇿🇲 Zambia Edition</strong><br>
+                                <strong>${currentChannels.length}+ Channels</strong><br>
+                                <strong>Free Streaming</strong><br>
+                                <strong>Optimized for Zambia</strong><br>
+                                <strong>No Subscription Required</strong><br>
+                                <strong>HD Quality Available</strong><br>
+                                <strong>Radio Stations Included</strong>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        // Start app when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
 </html>
