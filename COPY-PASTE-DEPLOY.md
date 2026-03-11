@@ -58,7 +58,7 @@ npm install
 echo -e "${GREEN}📋 Building project...${NC}"
 npm run build
 
-# Get server IP
+# Get server IP dynamically
 SERVER_IP=$(curl -s ifconfig.me)
 echo -e "${BLUE}🌐 Server IP: $SERVER_IP${NC}"
 
@@ -67,41 +67,50 @@ echo -e "${GREEN}📋 Configuring web server...${NC}"
 cat > /etc/nginx/sites-available/wesu-tv << 'NGINXEOF'
 server {
     listen 80;
+    # Server IP will be set automatically
     server_name SERVER_IP_PLACEHOLDER;
     
     root /var/www/wesu-tv/dist;
     index index.html;
     
+    # Enable compression
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss+xml application/json;
     
+    # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     
+    # Static file caching
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
         access_log off;
     }
     
+    # Main location
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files \$uri \$uri/ /index.html;
+        
+        # CORS for IPTV streams
         add_header Access-Control-Allow-Origin "*";
         add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
         add_header Access-Control-Allow-Headers "Origin, Content-Type";
     }
     
+    # Error handling
     error_page 404 /index.html;
     
+    # Logging
     access_log /var/log/nginx/wesu-tv.access.log;
     error_log /var/log/nginx/wesu-tv.error.log;
 }
 NGINXEOF
 
-# Replace IP placeholder
+# Replace IP placeholder with actual IP
 sed -i "s/SERVER_IP_PLACEHOLDER/$SERVER_IP/g" /etc/nginx/sites-available/wesu-tv
 
 # Enable site
@@ -135,6 +144,10 @@ echo -e "${GREEN}✅ WESU TV Deployment Complete!${NC}"
 echo -e "${BLUE}🌐 Your site is live at: http://$SERVER_IP${NC}"
 echo -e "${BLUE}📱 Features: 3582+ channels, YouTube-style player, Zambia-optimized${NC}"
 echo -e "${BLUE}🔄 Update anytime with: /home/update-wesu-tv.sh${NC}"
+echo -e "${BLUE}🔄 Update logs: /var/log/wesu-tv/updates.log${NC}"
+echo ""
+echo -e "${GREEN}🚀 ENJOY YOUR WESU TV! 🇿🇲📺🌟${NC}"
+echo -e "${GREEN}============================================================================${NC}"
 EOF
 
 # Make script executable and run it
