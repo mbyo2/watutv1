@@ -37,7 +37,7 @@ apt install -y git curl wget unzip nginx
 
 # Install Node.js
 echo -e "${GREEN}📋 Installing Node.js...${NC}"
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get install -y nodejs
 
 # Clone repository
