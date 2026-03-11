@@ -45,7 +45,7 @@ apt install -y git curl wget unzip nginx
 
 **📦 Step 4: Install Node.js**
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get install -y nodejs
 ```
 
@@ -274,12 +274,12 @@ apt update && apt upgrade -y
 # Install essential tools
 apt install -y git curl wget unzip nginx
 
-# Install Node.js 18
-curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+# Install Node.js 22
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get install -y nodejs
 
 # Verify installations
-node --version  # Should show v18.x.x
+node --version  # Should show v22.x.x
 npm --version
 ```
 
