@@ -8,8 +8,19 @@
 **🔧 What You'll Need:**
 - **Hostinger VPS** with Ubuntu
 - **SSH access** to your VPS
-- **Domain name** pointing to Hostinger
+- **Domain name** (optional - can add later)
 - **Your GitHub:** `https://github.com/mbyo2/watutv1.git`
+
+**🌐 Domain Flexibility:**
+- ✅ **Deploy now with IP address** - no domain required
+- ✅ **Add custom domain later** when you purchase one
+- ✅ **Both IP and domain** will work simultaneously
+- ✅ **Easy SSL setup** when you get your domain
+
+**🚀 Quick Start Options:**
+- **Option 1:** Deploy with IP address now (recommended)
+- **Option 2:** Wait for domain, then deploy
+- **Both options** work perfectly with this guide
 
 ---
 
@@ -108,7 +119,11 @@ nano /etc/nginx/sites-available/wesu-tv
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    # Use IP address now, add domain later when you have one
+    server_name your-vps-ip-address;  # Replace with your actual VPS IP
+    
+    # When you get a domain, update this line to:
+    # server_name your-domain.com www.your-domain.com your-vps-ip-address;
     
     root /var/www/wesu-tv/dist;
     index index.html;
@@ -150,6 +165,12 @@ server {
 }
 ```
 
+**🔧 Important Notes:**
+- **Replace `your-vps-ip-address`** with your actual VPS IP
+- **Keep domain names commented** until you purchase one
+- **Easy to add domain later** by just updating the `server_name` line
+- **Both IP and domain** will work simultaneously when configured
+
 ---
 
 ## 📥 **STEP 7: ENABLE SITE**
@@ -173,10 +194,11 @@ systemctl status nginx
 
 ---
 
-## 📥 **STEP 8: CONFIGURE DOMAIN**
+## 📥 **STEP 8: CONFIGURE DOMAIN (Optional)**
 
-**🌐 In Hostinger Panel:**
-1. **Login to Hostinger**
+**🌐 Option A: With Custom Domain**
+**If you have a domain name:**
+1. **Login to Hostinger Panel**
 2. **Go to DNS Settings**
 3. **Add A Record:**
    - **Type:** A
@@ -189,20 +211,82 @@ systemctl status nginx
    - **Value:** your-domain.com
    - **TTL:** 3600
 
+**🌐 Option B: Without Custom Domain (Use VPS IP)**
+**If you don't have a domain yet:**
+1. **Skip DNS configuration** for now
+2. **Use your VPS IP address** directly
+3. **Access your site at:** `http://your-vps-ip-address`
+4. **Add domain later** when you purchase it
+
+**📋 Update Nginx Config for IP Access:**
+```bash
+# Edit Nginx config for IP access
+nano /etc/nginx/sites-available/wesu-tv
+
+# Change server_name line:
+# From: server_name your-domain.com www.your-domain.com;
+# To: server_name your-vps-ip-address;
+
+# Or use both for flexibility:
+server_name your-vps-ip-address your-domain.com www.your-domain.com;
+```
+
+**🔄 Later - When You Get a Domain:**
+```bash
+# Update Nginx config with domain
+nano /etc/nginx/sites-available/wesu-tv
+
+# Change server_name:
+server_name your-domain.com www.your-domain.com;
+
+# Test and reload
+nginx -t
+systemctl reload nginx
+
+# Then configure DNS as shown in Option A
+```
+
 ---
 
-## 📥 **STEP 9: SECURE WITH SSL**
+## 📥 **STEP 9: SECURE WITH SSL (Optional)**
 
+**🔒 Option A: With Custom Domain**
 ```bash
 # Install Certbot
 apt install -y certbot python3-certbot-nginx
 
-# Get SSL certificate
+# Get SSL certificate (replace with your actual domain)
 certbot --nginx -d your-domain.com -d www.your-domain.com --email your-email@example.com --agree-tos --non-interactive
 
 # Auto-renewal
 crontab -e
 # Add: 0 12 * * * /usr/bin/certbot renew --quiet
+```
+
+**🔒 Option B: Without Custom Domain (Skip SSL for Now)**
+```bash
+# Skip SSL setup until you get a domain
+# SSL certificates require a domain name
+# You can add SSL later when you purchase a domain
+
+# For now, your site will work with HTTP:
+# http://your-vps-ip-address
+
+# Later - When you get a domain:
+# 1. Update Nginx config with domain (see STEP 8)
+# 2. Run SSL setup from Option A
+# 3. Update any hardcoded HTTP links to HTTPS
+```
+
+**🔄 Adding SSL Later:**
+```bash
+# When you get your domain, simply run:
+certbot --nginx -d your-domain.com -d www.your-domain.com --email your-email@example.com --agree-tos --non-interactive
+
+# Certbot will automatically:
+# - Update Nginx config for HTTPS
+# - Set up auto-renewal
+# - Configure redirects from HTTP to HTTPS
 ```
 
 ---
@@ -213,12 +297,33 @@ crontab -e
 # Restart all services
 systemctl restart nginx
 
-# Test your site
+# Test your site (choose appropriate URL)
+# If you have a domain:
 curl -I http://your-domain.com
+
+# If you're using IP address:
+curl -I http://your-vps-ip-address
 
 # Check logs
 tail -f /var/log/nginx/wesu-tv.access.log
 ```
+
+**🎯 Your Site is Now Live!**
+
+**🌐 Access Methods:**
+- **With Domain:** `http://your-domain.com`
+- **Without Domain:** `http://your-vps-ip-address`
+- **HTTPS:** `https://your-domain.com` (if SSL configured)
+
+**📱 What Users Will See:**
+- **3582+ IPTV channels**
+- **YouTube-style player** with quality selection
+- **Zambia category** with local channels
+- **Kids category** with 174+ channels
+- **English category** with 500+ channels
+- **Movies category** with 400+ channels
+- **Mobile responsive** design
+- **All categories** (Sports, News, Music, Religious, Radio, African)
 
 ---
 
@@ -248,6 +353,260 @@ chmod +x /home/update-wesu-tv.sh
 crontab -e
 # Add: 0 2 * * 0 /home/update-wesu-tv.sh
 ```
+
+---
+
+## 🔄 **STEP 12: SYNC GITHUB CHANGES TO PRODUCTION**
+
+### **🌐 Automatic Sync from GitHub**
+
+**📋 When you make changes to your GitHub repository, you need to sync them to production:**
+
+#### **🔧 Method 1: Manual Update**
+```bash
+# SSH into your VPS
+ssh root@your-vps-ip-address
+
+# Navigate to project directory
+cd /var/www/wesu-tv
+
+# Pull latest changes from GitHub
+git pull origin main
+
+# Install new dependencies (if any)
+npm install
+
+# Build for production
+npm run build
+
+# Restart Nginx to apply changes
+systemctl reload nginx
+
+# Check status
+systemctl status nginx
+```
+
+#### **🔄 Method 2: Use Update Script**
+```bash
+# Run the update script we created
+/home/update-wesu-tv.sh
+
+# This will automatically:
+# - Pull latest changes from GitHub
+# - Install dependencies
+# - Build for production
+# - Restart Nginx
+```
+
+#### **⚡ Method 3: Automatic Updates (Recommended)**
+```bash
+# The cron job we set up will automatically update weekly
+# To check if it's running:
+crontab -l
+
+# To force an immediate update:
+/home/update-wesu-tv.sh
+
+# To see update logs:
+tail -f /var/log/wesu-tv-updates.log
+```
+
+### **📊 Update Workflow**
+
+**🔄 Typical Update Process:**
+
+1. **Make Changes Locally:**
+   ```bash
+   # On your development machine
+   # Edit files in your project
+   # Test changes locally with: npm run dev
+   ```
+
+2. **Commit to GitHub:**
+   ```bash
+   # Add changes
+   git add .
+
+   # Commit changes
+   git commit -m "Your commit message describing changes"
+
+   # Push to GitHub
+   git push origin main
+   ```
+
+3. **Deploy to Production:**
+   ```bash
+   # SSH into VPS
+   ssh root@your-vps-ip-address
+
+   # Run update script
+   /home/update-wesu-tv.sh
+
+   # Or manual update
+   cd /var/www/wesu-tv && git pull origin main && npm install && npm run build && systemctl reload nginx
+   ```
+
+### **🔍 Verify Updates**
+
+**📋 Check if Updates Applied:**
+```bash
+# Check current Git commit
+cd /var/www/wesu-tv
+git log --oneline -1
+
+# Check build files
+ls -la dist/
+
+# Test website
+curl -I http://your-domain.com
+
+# Check Nginx status
+systemctl status nginx
+```
+
+### **⚠️ Troubleshooting Updates**
+
+**🔧 Common Update Issues:**
+
+**Git Pull Fails:**
+```bash
+# If there are conflicts, reset and pull fresh
+cd /var/www/wesu-tv
+git reset --hard origin/main
+git pull origin main
+```
+
+**Build Fails:**
+```bash
+# Clean build
+cd /var/www/wesu-tv
+rm -rf node_modules package-lock.json dist/
+npm install
+npm run build
+```
+
+**Nginx Issues:**
+```bash
+# Test Nginx config
+nginx -t
+
+# Restart Nginx
+systemctl restart nginx
+
+# Check logs
+tail -f /var/log/nginx/wesu-tv.error.log
+```
+
+### **🔄 Advanced Sync Options**
+
+#### **🚀 Method 4: Webhook Integration (Advanced)**
+```bash
+# Create webhook script
+nano /home/webhook-update.sh
+```
+
+**📝 Webhook script content:**
+```bash
+#!/bin/bash
+# This script can be triggered by GitHub webhooks
+cd /var/www/wesu-tv
+git pull origin main
+npm install
+npm run build
+systemctl reload nginx
+echo "Webhook update completed on $(date)"
+```
+
+#### **📱 Method 5: GitHub Actions (Advanced)**
+```yaml
+# Create .github/workflows/deploy.yml
+name: Deploy to Production
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to server
+      run: |
+        # SSH commands to update production
+        ssh root@your-vps-ip-address "cd /var/www/wesu-tv && git pull origin main && npm install && npm run build && systemctl reload nginx"
+```
+
+### **📋 Update Monitoring**
+
+**🔍 Monitor Update Process:**
+```bash
+# Create update log
+mkdir -p /var/log/wesu-tv/
+
+# Update script with logging
+nano /home/update-wesu-tv.sh
+```
+
+**📝 Enhanced update script with logging:**
+```bash
+#!/bin/bash
+LOG_FILE="/var/log/wesu-tv/updates.log"
+echo "===== Update started at $(date) =====" >> $LOG_FILE
+
+cd /var/www/wesu-tv
+
+# Pull changes
+echo "Pulling from GitHub..." >> $LOG_FILE
+git pull origin main >> $LOG_FILE 2>&1
+
+# Install dependencies
+echo "Installing dependencies..." >> $LOG_FILE
+npm install >> $LOG_FILE 2>&1
+
+# Build
+echo "Building..." >> $LOG_FILE
+npm run build >> $LOG_FILE 2>&1
+
+# Restart Nginx
+echo "Restarting Nginx..." >> $LOG_FILE
+systemctl reload nginx >> $LOG_FILE 2>&1
+
+echo "===== Update completed at $(date) =====" >> $LOG_FILE
+
+# Show last 10 lines of log
+tail -n 10 $LOG_FILE
+```
+
+### **🎯 Best Practices**
+
+**✅ Recommended Update Workflow:**
+
+1. **Test Locally First**
+   - Always test changes locally with `npm run dev`
+   - Ensure everything works before pushing
+
+2. **Use Descriptive Commits**
+   - Clear commit messages help track changes
+   - Example: "Fix channel loading issue" or "Add new category"
+
+3. **Backup Before Updates**
+   ```bash
+   # Create backup before major updates
+   cp -r /var/www/wesu-tv /var/www/wesu-tv-backup-$(date +%Y%m%d)
+   ```
+
+4. **Monitor After Updates**
+   - Check website functionality
+   - Monitor error logs
+   - Verify all features work
+
+5. **Rollback if Needed**
+   ```bash
+   # If update breaks something, rollback
+   cd /var/www/wesu-tv
+   git log --oneline -10  # See recent commits
+   git revert HEAD  # Revert last commit
+   npm run build
+   systemctl reload nginx
+   ```
 
 ---
 
